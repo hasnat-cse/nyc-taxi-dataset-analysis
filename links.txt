@@ -1,1 +1,4 @@
 https://honingds.com/blog/pandas-read_csv/
+https://stackabuse.com/pandas-library-for-data-visualization-in-python/
+https://stackoverflow.com/questions/48010276/how-to-estimate-eps-using-knn-distance-plot-in-dbscan
+https://matplotlib.org/3.1.1/gallery/pyplots/pyplot_scales.html
