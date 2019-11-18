@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
-import math
+
 import matplotlib.pyplot as plt
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler
+
+from DBCV import DBCV
+from scipy.spatial.distance import euclidean
 
 
 def parse_date(date_string):
@@ -23,11 +25,13 @@ def remove_noisy_rows(df):
 
 def read_relevant_data():
     df = pd.read_csv("../697_data/yellow_tripdata_2015-09.csv", header=0, usecols=["tpep_pickup_datetime",
-                                                                            "tpep_dropoff_datetime", "pickup_longitude",
-                                                                            "pickup_latitude", "dropoff_longitude",
-                                                                            "dropoff_latitude"],
+                                                                                   "tpep_dropoff_datetime",
+                                                                                   "pickup_longitude",
+                                                                                   "pickup_latitude",
+                                                                                   "dropoff_longitude",
+                                                                                   "dropoff_latitude"],
                      parse_dates=["tpep_pickup_datetime", "tpep_dropoff_datetime"],
-                     date_parser=parse_date, nrows=50000,
+                     date_parser=parse_date, nrows=100000,
                      dtype={"pickup_longitude": "float64", "pickup_latitude": "float64", "dropoff_longitude": "float64",
                             "dropoff_latitude": "float64"})
 
@@ -49,15 +53,29 @@ def knn_distance_plot(df, ns):
 
 
 def apply_dbscan(df, eps, min_samples):
-
-    # #############################################################################
+    ##############################################################################
     # Compute DBSCAN
     db = DBSCAN(eps=eps, min_samples=min_samples).fit(df)
 
-    core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
-    core_samples_mask[db.core_sample_indices_] = True
-    labels = db.labels_
+    return db.labels_
 
+
+def apply_optics(df, min_samples, max_eps=np.inf):
+    ##############################################################################
+    # Compute OPTICS
+    clust = OPTICS(min_samples=min_samples, max_eps=max_eps, xi=.05, min_cluster_size=.05).fit(df)
+
+    return clust
+
+
+def apply_cluster_optics_dbscan(clust, eps):
+    labels = cluster_optics_dbscan(reachability=clust.reachability_, core_distances=clust.core_distances_,
+                                   ordering=clust.ordering_, eps=eps)
+
+    return labels
+
+
+def plot_clusters(df, labels):
     # Number of clusters in labels, ignoring noise if present.
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     n_noise_ = list(labels).count(-1)
@@ -85,6 +103,12 @@ def apply_dbscan(df, eps, min_samples):
     plt.show()
 
 
+def apply_dbcv(df, labels):
+    np_array = df.to_numpy()
+    score = DBCV(np_array, labels, dist_function=euclidean)
+    print("DBCV Score: %s" % score)
+
+
 def plot_data(df, scale):
     df.plot.scatter(x='longitude', y='latitude', s=scale, figsize=(8, 6))
     plt.show()
@@ -107,8 +131,7 @@ def main():
     # print(pickup_df.tail(10))
 
     # plot pickup data
-    plot_data(pickup_df, 1)
-
+    plot_data(pickup_df, 5)
 
     dropoff_df = df[['dropoff_longitude', 'dropoff_latitude']]
     # changing column names
@@ -125,10 +148,20 @@ def main():
     # knn_distance_plot(dropoff_df, 3)
 
     # apply dbscan on pickup
-    apply_dbscan(pickup_df, 0.001, 3)
+    # pickup_labels = apply_dbscan(pickup_df, 0.001, 3)
 
     # apply dbscan on dropoff
-    apply_dbscan(dropoff_df, 0.005, 3)
+    # dropoff_labels = apply_dbscan(dropoff_df, 0.005, 3)
+
+    # # apply dbcv on pickup
+    # apply_dbcv(pickup_df, pickup_labels)
+
+    # apply optics
+    pickup_optics_clust = apply_optics(pickup_df, 50, 0.01)
+
+    # apply cluster_optics_dbscan
+    pickup_optics_dbscan_labels = apply_cluster_optics_dbscan(pickup_optics_clust, 0.002)
+    plot_clusters(pickup_df, pickup_optics_dbscan_labels)
 
 
 if __name__ == "__main__":
