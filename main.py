@@ -10,7 +10,23 @@ from scipy.spatial.distance import euclidean
 
 
 def parse_date(date_string):
-    return pd.datetime.strptime(date_string, "%Y-%d-%m %H:%M:%S")
+    return pd.datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
+
+
+def read_relevant_data():
+    df = pd.read_csv("../697_data/yellow_tripdata_2015-09.csv", header=0, usecols=["tpep_pickup_datetime",
+                                                                                   "tpep_dropoff_datetime",
+                                                                                   "pickup_longitude",
+                                                                                   "pickup_latitude",
+                                                                                   "dropoff_longitude",
+                                                                                   "dropoff_latitude"],
+                     parse_dates=["tpep_pickup_datetime", "tpep_dropoff_datetime"],
+                     date_parser=parse_date, nrows=351276,
+                     dtype={"pickup_longitude": "float64", "pickup_latitude": "float64", "dropoff_longitude": "float64",
+                            "dropoff_latitude": "float64"})
+
+    # df.info()
+    return df
 
 
 def remove_rows_that_contain_0_values(df):
@@ -23,19 +39,38 @@ def remove_noisy_rows(df):
               (df['dropoff_longitude'] < float(-70)) & (df['dropoff_latitude'] > float(40))]
 
 
-def read_relevant_data():
-    df = pd.read_csv("../697_data/yellow_tripdata_2015-09.csv", header=0, usecols=["tpep_pickup_datetime",
-                                                                                   "tpep_dropoff_datetime",
-                                                                                   "pickup_longitude",
-                                                                                   "pickup_latitude",
-                                                                                   "dropoff_longitude",
-                                                                                   "dropoff_latitude"],
-                     parse_dates=["tpep_pickup_datetime", "tpep_dropoff_datetime"],
-                     date_parser=parse_date, nrows=100000,
-                     dtype={"pickup_longitude": "float64", "pickup_latitude": "float64", "dropoff_longitude": "float64",
-                            "dropoff_latitude": "float64"})
+def impose_boundary(df):
+    return df[(df['pickup_longitude'] <= float(-73.4)) & (df['pickup_longitude'] >= float(-74.4)) &
+              (df['pickup_latitude'] >= float(40.5)) & (df['pickup_latitude'] <= float(41)) &
+              (df['dropoff_longitude'] <= float(-73.4)) & (df['dropoff_longitude'] >= float(-74.4)) &
+              (df['dropoff_latitude'] >= float(40.5)) & (df['dropoff_latitude'] <= float(41))]
 
-    # df.info()
+
+def sample_data(df):
+    sample_size = 100000
+    if len(df) > sample_size:
+        df = df.sample(sample_size)
+
+    print(len(df))
+
+    return df
+
+
+def read_and_preprocess_data():
+    df = read_relevant_data()
+    # print(df.head(10))
+
+    df = remove_rows_that_contain_0_values(df)
+    # print(df.tail(10))
+
+    # from the x y plot we see there are a few data points with abnormal longitude or latitude values
+    # try commenting following line and see the difference in plot of dropoff
+    df = remove_noisy_rows(df)
+
+    df = impose_boundary(df)
+
+    df = sample_data(df)
+
     return df
 
 
@@ -115,15 +150,8 @@ def plot_data(df, scale):
 
 
 def main():
-    df = read_relevant_data()
-    # print(df.head(10))
-
-    df = remove_rows_that_contain_0_values(df)
-    # print(df.tail(10))
-
-    # from the x y plot we see there are a few data points with abnormal longitude or latitude values
-    # try commenting following line and see the difference in plot of dropoff
-    df = remove_noisy_rows(df)
+    # read and preprocess data
+    df = read_and_preprocess_data()
 
     pickup_df = df[['pickup_longitude', 'pickup_latitude']]
     # changing column names
@@ -131,7 +159,7 @@ def main():
     # print(pickup_df.tail(10))
 
     # plot pickup data
-    plot_data(pickup_df, 5)
+    plot_data(pickup_df, .5)
 
     dropoff_df = df[['dropoff_longitude', 'dropoff_latitude']]
     # changing column names
@@ -139,29 +167,33 @@ def main():
     # print(dropoff_df.tail(10))
 
     # plot dropoff data
-    plot_data(dropoff_df, 5)
+    plot_data(dropoff_df, .5)
 
     # knn-distance plot for pickup, knee point distance = 0.001
-    # knn_distance_plot(pickup_df, 3)
+    knn_distance_plot(pickup_df, 50)
 
     # knn-distance plot for dropoff, knee point distance = 0.005
     # knn_distance_plot(dropoff_df, 3)
 
     # apply dbscan on pickup
-    # pickup_labels = apply_dbscan(pickup_df, 0.001, 3)
+    pickup_labels = apply_dbscan(pickup_df, 0.002, 50)
+    plot_clusters(pickup_df, pickup_labels)
 
     # apply dbscan on dropoff
     # dropoff_labels = apply_dbscan(dropoff_df, 0.005, 3)
 
-    # # apply dbcv on pickup
+    # apply dbcv on pickup
     # apply_dbcv(pickup_df, pickup_labels)
 
     # apply optics
-    pickup_optics_clust = apply_optics(pickup_df, 50, 0.01)
+    # pickup_optics_clust = apply_optics(pickup_df, 50, 0.05)
 
     # apply cluster_optics_dbscan
-    pickup_optics_dbscan_labels = apply_cluster_optics_dbscan(pickup_optics_clust, 0.002)
-    plot_clusters(pickup_df, pickup_optics_dbscan_labels)
+    # pickup_optics_dbscan_labels = apply_cluster_optics_dbscan(pickup_optics_clust, 0.002)
+    # plot_clusters(pickup_df, pickup_optics_dbscan_labels)
+
+    # apply dbcv on pickup
+    # apply_dbcv(pickup_df, pickup_optics_dbscan_labels)
 
 
 if __name__ == "__main__":
