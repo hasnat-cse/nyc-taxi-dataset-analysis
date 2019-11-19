@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from sklearn.neighbors import NearestNeighbors
 
@@ -51,8 +52,6 @@ def sample_data(df):
     if len(df) > sample_size:
         df = df.sample(sample_size)
 
-    print(len(df))
-
     return df
 
 
@@ -80,8 +79,8 @@ def knn_distance_plot(df, ns):
     distance_dec = sorted(distances[:, ns - 1], reverse=True)
 
     # see the difference between linear and log ploting
-    # plt.yscale('linear')
-    plt.yscale('log')
+    plt.yscale('linear')
+    # plt.yscale('log')
 
     plt.plot(list(range(1, len(df) + 1)), distance_dec)
     plt.show()
@@ -98,7 +97,7 @@ def apply_dbscan(df, eps, min_samples):
 def apply_optics(df, min_samples, max_eps=np.inf):
     ##############################################################################
     # Compute OPTICS
-    clust = OPTICS(min_samples=min_samples, max_eps=max_eps, xi=.05, min_cluster_size=.05).fit(df)
+    clust = OPTICS(min_samples=min_samples, max_eps=max_eps, xi=.05).fit(df)
 
     return clust
 
@@ -144,6 +143,25 @@ def apply_dbcv(df, labels):
     print("DBCV Score: %s" % score)
 
 
+def reachability_plot(df, clust):
+    space = np.arange(len(df))
+    reachability = clust.reachability_[clust.ordering_]
+    labels = clust.labels_[clust.ordering_]
+
+    plt.figure(figsize=(10, 7))
+
+    # Reachability plot
+    colors = ['g.', 'r.', 'b.', 'y.', 'c.']
+    for klass, color in zip(range(0, 5), colors):
+        Xk = space[labels == klass]
+        Rk = reachability[labels == klass]
+        plt.plot(Xk, Rk, color, alpha=0.3)
+    plt.plot(space[labels == -1], reachability[labels == -1], 'k.', alpha=0.3)
+    # plt.plot(space, np.full_like(space, 2., dtype=float), 'k-', alpha=0.5)
+    # plt.plot(space, np.full_like(space, 0.5, dtype=float), 'k-.', alpha=0.5)
+    plt.show()
+
+
 def plot_data(df, scale):
     df.plot.scatter(x='longitude', y='latitude', s=scale, figsize=(8, 6))
     plt.show()
@@ -176,8 +194,8 @@ def main():
     # knn_distance_plot(dropoff_df, 3)
 
     # apply dbscan on pickup
-    pickup_labels = apply_dbscan(pickup_df, 0.002, 50)
-    plot_clusters(pickup_df, pickup_labels)
+    # pickup_labels = apply_dbscan(pickup_df, 0.002, 50)
+    # plot_clusters(pickup_df, pickup_labels)
 
     # apply dbscan on dropoff
     # dropoff_labels = apply_dbscan(dropoff_df, 0.005, 3)
@@ -186,7 +204,11 @@ def main():
     # apply_dbcv(pickup_df, pickup_labels)
 
     # apply optics
-    # pickup_optics_clust = apply_optics(pickup_df, 50, 0.05)
+    pickup_optics_clust = apply_optics(pickup_df, 50, 0.02)
+    plot_clusters(pickup_df, pickup_optics_clust.labels_)
+
+    # reachability plot
+    reachability_plot(pickup_df, pickup_optics_clust)
 
     # apply cluster_optics_dbscan
     # pickup_optics_dbscan_labels = apply_cluster_optics_dbscan(pickup_optics_clust, 0.002)
