@@ -8,3 +8,4 @@ https://towardsdatascience.com/dbscan-algorithm-complete-guide-and-application-w
 https://www.geeksforgeeks.org/python-pandas-dataframe-rename/
 https://github.com/christopherjenness/DBCV
 https://python-graph-gallery.com/all-charts/
+https://stackoverflow.com/questions/25129144/pandas-return-hour-from-datetime-column-directly
