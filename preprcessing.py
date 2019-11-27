@@ -65,6 +65,31 @@ def get_hourly_data(df, data_type):
     return hourly_df_list
 
 
+def get_periodic_data(df, periods, data_type):
+    periodic_df_list = []
+
+    for period in periods:
+
+        if data_type == 'pickup':
+            periodic_df = df[((df['tpep_pickup_datetime'].dt.hour >= period[0]) & (df['tpep_pickup_datetime'].dt.hour < period[1]))]
+            periodic_df = periodic_df[['pickup_longitude', 'pickup_latitude']]
+            periodic_df = periodic_df.rename(columns={"pickup_longitude": "longitude", "pickup_latitude": "latitude"})
+
+        elif data_type == 'dropoff':
+            periodic_df = df[((df['tpep_dropoff_datetime'].dt.hour >= period[0]) & (df['tpep_dropoff_datetime'].dt.hour < period[1]))]
+            periodic_df = periodic_df[['dropoff_longitude', 'dropoff_latitude']]
+            periodic_df = periodic_df.rename(columns={"dropoff_longitude": "longitude", "dropoff_latitude": "latitude"})
+
+        else:
+            return []
+
+        periodic_df_list.append(periodic_df)
+
+        print(len(periodic_df))
+
+    return periodic_df_list
+
+
 def get_whole_specific_data(df, data_type):
     specific_df = None
 
@@ -112,7 +137,7 @@ def divide_data_by_weekday_weekend(df):
     # wednesday(2)
     weekday_df = df[(df['tpep_pickup_datetime'].dt.dayofweek == 2)]
 
-    # saturday(5)
-    weekend_df = df[(df['tpep_pickup_datetime'].dt.dayofweek == 5)]
+    # sunday(6)
+    weekend_df = df[(df['tpep_pickup_datetime'].dt.dayofweek == 6)]
 
     return weekday_df, weekend_df

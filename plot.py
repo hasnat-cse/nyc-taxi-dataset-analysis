@@ -1,3 +1,5 @@
+from collections import Counter
+
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
@@ -52,6 +54,46 @@ def plot_clusters(df, labels, title_prefix):
     plt.ylabel('Latitude')
 
     plt.scatter(df['longitude'], df['latitude'], c=df['label'].map(label_color_dict), s=1)
+
+    plt.show()
+
+
+def plot_topmost_clusters(df, labels, title_prefix):
+    df['label'] = labels
+
+    topmost_labels_counter = Counter(x for x in labels if x != -1).most_common()
+
+    topmost_labels = []
+    for i, label_counter in enumerate(topmost_labels_counter):
+        if i == 5:
+            break
+        topmost_labels.append(label_counter[0])
+
+    plt.figure(figsize=(20, 10))
+    plt.title(title_prefix + ' Topmost Clustering Plot')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+
+    # unique_labels = set(labels)
+    # label_color_dict = {}
+    # colors = ['r', 'g', 'b', 'y', 'c']
+    #
+    # for i, label in enumerate(topmost_labels):
+    #     label_color_dict[label] = colors[i]
+    #
+    # for label, col in zip(unique_labels, colors):
+    #     if label not in topmost_labels:
+    #         label_color_dict[label] = 'w'
+    #
+    # plt.scatter(df['longitude'], df['latitude'], c=df['label'].map(label_color_dict), s=1)
+
+    other_df = df[~df['label'].isin(topmost_labels)]
+    plt.scatter(other_df['longitude'], other_df['latitude'], c='grey', s=1)
+
+    colors = ['r', 'g', 'b', 'y', 'c']
+    for i, label in enumerate(topmost_labels):
+        topmost_df = df[df['label'] == label]
+        plt.scatter(topmost_df['longitude'], topmost_df['latitude'], c=colors[i], s=1)
 
     plt.show()
 

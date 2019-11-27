@@ -32,6 +32,8 @@ def plot_cluster_validate_hdbscan(df, title_prefix):
     hdbscan_labels = apply_hdbscan(df, min_cluster_size, min_samples)
     plot_clusters(df, hdbscan_labels, title_prefix + ' HDBSCAN')
 
+    plot_topmost_clusters(df, hdbscan_labels, title_prefix + ' HDBSCAN')
+
     # apply dbcv
     # apply_dbcv(df, hdbscan_labels)
 
@@ -64,73 +66,68 @@ def plot_cluster_validate_optics(df, title_prefix):
     # plot_clusters(pickup_df, optics_dbscan_labels, title_prefix)
 
 
-def analyze_hourly_pickup_data(df):
-    hourly_pickup_df_list = get_hourly_data(df, 'pickup')
+def analyze_periodic_data(df, data_type):
+    periods = [(0, 6), (6, 10), (10, 15), (15, 19), (19, 24)]
 
-    for hour, hourly_pickup_df in enumerate(hourly_pickup_df_list):
-        plot_data(hourly_pickup_df, 'Pickup at ' + str(hour))
+    periodic_df_list = get_periodic_data(df, periods, data_type)
 
-        plot_cluster_validate_dbscan(hourly_pickup_df, 'Pickup at ' + str(hour))
+    for i, periodic_df in enumerate(periodic_df_list):
+        if data_type == 'pickup':
+            title_prefix = 'Pickup at ' + str(periods[i][0]) + ' to ' + str(periods[i][1])
 
-        plot_cluster_validate_optics(hourly_pickup_df, 'Pickup at ' + str(hour))
+        elif data_type == 'dropoff':
+            title_prefix = 'Dropoff at ' + str(periods[i][0]) + ' to ' + str(periods[i][1])
 
-        plot_cluster_validate_hdbscan(hourly_pickup_df, 'Pickup at ' + str(hour))
-        break
+        else:
+            return
 
+        plot_data(periodic_df, title_prefix)
 
-def analyze_hourly_dropoff_data(df):
-    hourly_dropoff_df_list = get_hourly_data(df, 'dropoff')
-
-    for hour, hourly_dropoff_df in enumerate(hourly_dropoff_df_list):
-        plot_data(hourly_dropoff_df, 'Dropoff at ' + str(hour))
-
-        plot_cluster_validate_dbscan(hourly_dropoff_df, 'Dropoff at ' + str(hour))
-
-        plot_cluster_validate_optics(hourly_dropoff_df, 'Dropoff at ' + str(hour))
-
-        plot_cluster_validate_hdbscan(hourly_dropoff_df, 'Dropoff at ' + str(hour))
-        break
+        # plot_cluster_validate_dbscan(periodic_df, title_prefix)
+        #
+        # plot_cluster_validate_optics(periodic_df, title_prefix)
+        #
+        # plot_cluster_validate_hdbscan(periodic_df, title_prefix)
+        # break
 
 
-def analyze_whole_pickup_data(df):
+def analyze_whole_data(df, data_type):
 
-    pickup_df = get_whole_specific_data(df, 'pickup')
-    plot_data(pickup_df, 'Pickup')
+    df = get_whole_specific_data(df, data_type)
 
-    # plot_cluster_validate_dbscan(pickup_df, 'Pickup')
+    if data_type == 'pickup':
+        title_prefix = 'Pickup'
 
-    plot_cluster_validate_optics(pickup_df, 'Pickup')
+    elif data_type == 'dropoff':
+        title_prefix = 'Dropoff'
 
-    # plot_cluster_validate_hdbscan(pickup_df, 'Pickup')
+    else:
+        return
 
+    plot_data(df, title_prefix)
 
-def analyze_whole_dropoff_data(df):
+    # plot_cluster_validate_dbscan(df, title_prefix)
 
-    dropoff_df = get_whole_specific_data(df, 'dropoff')
-    plot_data(dropoff_df, 'Dropoff')
+    # plot_cluster_validate_optics(df, title_prefix)
 
-    # plot_cluster_validate_dbscan(dropoff_df, 'Dropoff')
-
-    # plot_cluster_validate_optics(dropoff_df, 'Dropoff')
-
-    plot_cluster_validate_hdbscan(dropoff_df, 'Dropoff')
+    plot_cluster_validate_hdbscan(df, title_prefix)
 
 
 def main():
     # read and preprocess data
     weekday_df, weekend_df = read_and_preprocess_data()
 
-    analyze_whole_pickup_data(weekday_df)
-    analyze_whole_pickup_data(weekend_df)
+    # analyze_whole_data(weekday_df, 'pickup')
+    analyze_whole_data(weekend_df, 'pickup')
 
-    # analyze_whole_dropoff_data(weekday_df)
-    # analyze_whole_dropoff_data(weekend_df)
+    # analyze_whole_data(weekday_df, 'dropoff')
+    # analyze_whole_data(weekend_df, 'dropoff')
 
-    # analyze_hourly_pickup_data(weekday_df)
-    # analyze_hourly_pickup_data(weekend_df)
+    # analyze_periodic_data(weekday_df, 'pickup')
+    # analyze_periodic_data(weekend_df, 'pickup')
 
-    # analyze_hourly_dropoff_data(weekday_df)
-    # analyze_hourly_dropoff_data(weekend_df)
+    # analyze_periodic_data(weekday_df, 'dropoff')
+    # analyze_periodic_data(weekend_df, 'dropoff')
 
 
 if __name__ == "__main__":
