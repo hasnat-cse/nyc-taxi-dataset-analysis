@@ -13,7 +13,7 @@ def read_relevant_data():
                                                                                    "dropoff_longitude",
                                                                                    "dropoff_latitude"],
                      parse_dates=["tpep_pickup_datetime", "tpep_dropoff_datetime"],
-                     date_parser=parse_date, nrows=351276,
+                     date_parser=parse_date, nrows=2400000,
                      dtype={"pickup_longitude": "float64", "pickup_latitude": "float64", "dropoff_longitude": "float64",
                             "dropoff_latitude": "float64"})
 
@@ -24,11 +24,6 @@ def read_relevant_data():
 def remove_rows_that_contain_0_values(df):
     return df[(df['pickup_longitude'] != float(0)) & (df['pickup_latitude'] != float(0)) &
               (df['dropoff_longitude'] != float(0)) & (df['dropoff_latitude'] != float(0))]
-
-
-def remove_noisy_rows(df):
-    return df[(df['pickup_longitude'] < float(-70)) & (df['pickup_latitude'] > float(40)) &
-              (df['dropoff_longitude'] < float(-70)) & (df['dropoff_latitude'] > float(40))]
 
 
 def impose_boundary(df):
@@ -86,19 +81,38 @@ def get_whole_specific_data(df, data_type):
 
 def read_and_preprocess_data():
     df = read_relevant_data()
-    # print(df.head(10))
-    print("Total data: %s" % len(df))
+
+    df = get_data_of_one_week_only(df)
 
     df = remove_rows_that_contain_0_values(df)
-    print("After removing 0 value rows: %s" % len(df))
-    # print(df.tail(10))
-
-    # from the x y plot we see there are a few data points with abnormal longitude or latitude values
-    # try commenting following line and see the difference in plot of dropoff
-    df = remove_noisy_rows(df)
-    print("After removing noisy rows: %s" % len(df))
+    # print("After removing 0 value rows: %s" % len(df))
 
     df = impose_boundary(df)
-    print("After imposing boundary: %s" % len(df))
+    # print("After imposing boundary: %s" % len(df))
+
+    weekday_df, weekend_df = divide_data_by_weekday_weekend(df)
+    print("Weekday data length: %s" % len(weekday_df))
+    # print(weekday_df.tail(5))
+
+    print("Weekend data length: %s" % len(weekend_df))
+    # print(weekend_df.tail(5))
+
+    return weekday_df, weekend_df
+
+
+def get_data_of_one_week_only(df):
+    # get data from September 1 to 7
+    df = df[(df['tpep_pickup_datetime'] < parse_date("2015-09-08 00:00:00"))]
 
     return df
+
+
+def divide_data_by_weekday_weekend(df):
+
+    # wednesday(2)
+    weekday_df = df[(df['tpep_pickup_datetime'].dt.dayofweek == 2)]
+
+    # saturday(5)
+    weekend_df = df[(df['tpep_pickup_datetime'].dt.dayofweek == 5)]
+
+    return weekday_df, weekend_df
