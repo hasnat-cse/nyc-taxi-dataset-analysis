@@ -85,7 +85,7 @@ def get_periodic_data(df, periods, data_type):
 
         periodic_df_list.append(periodic_df)
 
-        print(len(periodic_df))
+        print("Period %s to %s Data length: %s" % (period[0], period[1], len(periodic_df)))
 
     return periodic_df_list
 

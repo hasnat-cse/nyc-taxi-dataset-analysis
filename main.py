@@ -16,6 +16,8 @@ def plot_cluster_validate_dbscan(df, title_prefix):
     dbscan_labels = apply_dbscan(df, eps, min_pts)
     plot_clusters(df, dbscan_labels, title_prefix + ' DBSCAN')
 
+    plot_topmost_clusters(df, dbscan_labels, title_prefix + ' DBSCAN')
+
     # apply dbcv
     # apply_dbcv(df, dbscan_labels)
 
@@ -25,7 +27,7 @@ def plot_cluster_validate_dbscan(df, title_prefix):
 
 def plot_cluster_validate_hdbscan(df, title_prefix):
 
-    min_cluster_size = 10
+    min_cluster_size = 100
     min_samples = 3
 
     # apply hdbscan
@@ -38,19 +40,20 @@ def plot_cluster_validate_hdbscan(df, title_prefix):
     # apply_dbcv(df, hdbscan_labels)
 
     # calculate silhouette score
-    # calculate_silhouette_score(df, hdbscan_labels)
+    calculate_silhouette_score(df, hdbscan_labels)
 
 
 def plot_cluster_validate_optics(df, title_prefix):
 
-    min_samples = 100
+    min_samples = 50
 
-    # max_eps = 2
-    max_eps = float(input("Enter max_eps for OPTICS: "))
+    max_eps = 2
 
     # apply optics
     optics_clust = apply_optics(df, min_samples, max_eps)
     plot_clusters(df, optics_clust.labels_, title_prefix + ' OPTICS')
+
+    plot_topmost_clusters(df, optics_clust.labels_, title_prefix + ' OPTICS')
 
     # apply dbcv
     # apply_dbcv(df, optics_clust.labels_)
@@ -67,7 +70,8 @@ def plot_cluster_validate_optics(df, title_prefix):
 
 
 def analyze_periodic_data(df, data_type):
-    periods = [(0, 6), (6, 10), (10, 15), (15, 19), (19, 24)]
+    # periods = [(0, 6), (6, 10), (10, 15), (15, 19), (19, 24)]
+    periods = [(6, 10)]
 
     periodic_df_list = get_periodic_data(df, periods, data_type)
 
@@ -83,12 +87,11 @@ def analyze_periodic_data(df, data_type):
 
         plot_data(periodic_df, title_prefix)
 
-        # plot_cluster_validate_dbscan(periodic_df, title_prefix)
-        #
-        # plot_cluster_validate_optics(periodic_df, title_prefix)
-        #
-        # plot_cluster_validate_hdbscan(periodic_df, title_prefix)
-        # break
+        plot_cluster_validate_dbscan(periodic_df, title_prefix)
+
+        plot_cluster_validate_optics(periodic_df, title_prefix)
+
+        plot_cluster_validate_hdbscan(periodic_df, title_prefix)
 
 
 def analyze_whole_data(df, data_type):
@@ -106,9 +109,9 @@ def analyze_whole_data(df, data_type):
 
     plot_data(df, title_prefix)
 
-    # plot_cluster_validate_dbscan(df, title_prefix)
+    plot_cluster_validate_dbscan(df, title_prefix)
 
-    # plot_cluster_validate_optics(df, title_prefix)
+    plot_cluster_validate_optics(df, title_prefix)
 
     plot_cluster_validate_hdbscan(df, title_prefix)
 
@@ -118,13 +121,13 @@ def main():
     weekday_df, weekend_df = read_and_preprocess_data()
 
     # analyze_whole_data(weekday_df, 'pickup')
-    analyze_whole_data(weekend_df, 'pickup')
+    # analyze_whole_data(weekend_df, 'pickup')
 
     # analyze_whole_data(weekday_df, 'dropoff')
     # analyze_whole_data(weekend_df, 'dropoff')
 
     # analyze_periodic_data(weekday_df, 'pickup')
-    # analyze_periodic_data(weekend_df, 'pickup')
+    analyze_periodic_data(weekend_df, 'pickup')
 
     # analyze_periodic_data(weekday_df, 'dropoff')
     # analyze_periodic_data(weekend_df, 'dropoff')

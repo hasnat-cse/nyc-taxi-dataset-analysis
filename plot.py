@@ -68,6 +68,7 @@ def plot_topmost_clusters(df, labels, title_prefix):
         if i == 5:
             break
         topmost_labels.append(label_counter[0])
+        print('Top %s cluster with %s points' % (i + 1, label_counter[1]))
 
     plt.figure(figsize=(20, 10))
     plt.title(title_prefix + ' Topmost Clustering Plot')
