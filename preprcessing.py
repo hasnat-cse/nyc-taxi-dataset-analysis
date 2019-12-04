@@ -17,13 +17,29 @@ def read_relevant_data():
                      dtype={"pickup_longitude": "float64", "pickup_latitude": "float64", "dropoff_longitude": "float64",
                             "dropoff_latitude": "float64"})
 
-    # df.info()
+
+    # df = pd.read_csv("../697_data/yellow_tripdata_2015-09.csv", header=0, usecols=["tpep_pickup_datetime",
+    #                                                                                "tpep_dropoff_datetime",
+    #                                                                                "pickup_longitude",
+    #                                                                                "pickup_latitude",
+    #                                                                                "dropoff_longitude",
+    #                                                                                "dropoff_latitude",
+    #                                                                                "trip_distance"],
+    #                  parse_dates=["tpep_pickup_datetime", "tpep_dropoff_datetime"],
+    #                  date_parser=parse_date, nrows=2400000,
+    #                  dtype={"pickup_longitude": "float64", "pickup_latitude": "float64", "dropoff_longitude": "float64",
+    #                         "dropoff_latitude": "float64"})
+
     return df
 
 
 def remove_rows_that_contain_0_values(df):
     return df[(df['pickup_longitude'] != float(0)) & (df['pickup_latitude'] != float(0)) &
               (df['dropoff_longitude'] != float(0)) & (df['dropoff_latitude'] != float(0))]
+
+    # return df[(df['pickup_longitude'] != float(0)) & (df['pickup_latitude'] != float(0)) &
+    #           (df['dropoff_longitude'] != float(0)) & (df['dropoff_latitude'] != float(0)) &
+    #           (df['trip_distance'] != float(0))]
 
 
 def impose_boundary(df):
@@ -41,67 +57,21 @@ def sample_data(df):
     return df
 
 
-def get_hourly_data(df, data_type):
-    hourly_df_list = []
-    for i in range(0, 24):
-
-        if data_type == 'pickup':
-            hourly_df = df[((df['tpep_pickup_datetime'].dt.hour >= i) & (df['tpep_pickup_datetime'].dt.hour < (i + 1)))]
-            hourly_df = hourly_df[['pickup_longitude', 'pickup_latitude']]
-            hourly_df = hourly_df.rename(columns={"pickup_longitude": "longitude", "pickup_latitude": "latitude"})
-
-        elif data_type == 'dropoff':
-            hourly_df = df[((df['tpep_dropoff_datetime'].dt.hour >= i) & (df['tpep_dropoff_datetime'].dt.hour < (i + 1)))]
-            hourly_df = hourly_df[['dropoff_longitude', 'dropoff_latitude']]
-            hourly_df = hourly_df.rename(columns={"dropoff_longitude": "longitude", "dropoff_latitude": "latitude"})
-
-        else:
-            return []
-
-        hourly_df_list.append(hourly_df)
-
-        print(len(hourly_df))
-
-    return hourly_df_list
-
-
-def get_periodic_data(df, periods, data_type):
+def get_periodic_data(df, periods):
     periodic_df_list = []
 
     for period in periods:
+        periodic_df = df[
+            ((df['tpep_pickup_datetime'].dt.hour >= period[0]) & (df['tpep_pickup_datetime'].dt.hour < period[1]))]
 
-        if data_type == 'pickup':
-            periodic_df = df[((df['tpep_pickup_datetime'].dt.hour >= period[0]) & (df['tpep_pickup_datetime'].dt.hour < period[1]))]
-            periodic_df = periodic_df[['pickup_longitude', 'pickup_latitude']]
-            periodic_df = periodic_df.rename(columns={"pickup_longitude": "longitude", "pickup_latitude": "latitude"})
+        periodic_df = periodic_df[['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude']]
 
-        elif data_type == 'dropoff':
-            periodic_df = df[((df['tpep_dropoff_datetime'].dt.hour >= period[0]) & (df['tpep_dropoff_datetime'].dt.hour < period[1]))]
-            periodic_df = periodic_df[['dropoff_longitude', 'dropoff_latitude']]
-            periodic_df = periodic_df.rename(columns={"dropoff_longitude": "longitude", "dropoff_latitude": "latitude"})
-
-        else:
-            return []
+        # periodic_df = periodic_df[['pickup_longitude', 'pickup_latitude', 'dropoff_longitude',
+        #                            'dropoff_latitude', 'trip_distance']]
 
         periodic_df_list.append(periodic_df)
 
-        print("Period %s to %s Data length: %s" % (period[0], period[1], len(periodic_df)))
-
     return periodic_df_list
-
-
-def get_whole_specific_data(df, data_type):
-    specific_df = None
-
-    if data_type == 'pickup':
-        specific_df = df[['pickup_longitude', 'pickup_latitude']]
-        specific_df = specific_df.rename(columns={"pickup_longitude": "longitude", "pickup_latitude": "latitude"})
-
-    elif data_type == 'dropoff':
-        specific_df = df[['dropoff_longitude', 'dropoff_latitude']]
-        specific_df = specific_df.rename(columns={"dropoff_longitude": "longitude", "dropoff_latitude": "latitude"})
-
-    return specific_df
 
 
 def read_and_preprocess_data():
@@ -133,7 +103,6 @@ def get_data_of_one_week_only(df):
 
 
 def divide_data_by_weekday_weekend(df):
-
     # wednesday(2)
     weekday_df = df[(df['tpep_pickup_datetime'].dt.dayofweek == 2)]
 

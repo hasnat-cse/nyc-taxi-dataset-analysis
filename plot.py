@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 
+import plotly.graph_objects as go
+
+
+mapbox_access_token = open(".mapbox_token").read()
+
 
 def knn_distance_plot(df, ns, title_prefix):
     nbrs = NearestNeighbors(n_neighbors=ns).fit(df)
@@ -65,7 +70,7 @@ def plot_topmost_clusters(df, labels, title_prefix):
 
     topmost_labels = []
     for i, label_counter in enumerate(topmost_labels_counter):
-        if i == 5:
+        if i == 3:
             break
         topmost_labels.append(label_counter[0])
         print('Top %s cluster with %s points' % (i + 1, label_counter[1]))
@@ -75,28 +80,30 @@ def plot_topmost_clusters(df, labels, title_prefix):
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
 
-    # unique_labels = set(labels)
-    # label_color_dict = {}
-    # colors = ['r', 'g', 'b', 'y', 'c']
-    #
-    # for i, label in enumerate(topmost_labels):
-    #     label_color_dict[label] = colors[i]
-    #
-    # for label, col in zip(unique_labels, colors):
-    #     if label not in topmost_labels:
-    #         label_color_dict[label] = 'w'
-    #
-    # plt.scatter(df['longitude'], df['latitude'], c=df['label'].map(label_color_dict), s=1)
-
-    other_df = df[~df['label'].isin(topmost_labels)]
-    plt.scatter(other_df['longitude'], other_df['latitude'], c='grey', s=1)
-
-    colors = ['r', 'g', 'b', 'y', 'c']
-    for i, label in enumerate(topmost_labels):
+    for label in topmost_labels:
         topmost_df = df[df['label'] == label]
-        plt.scatter(topmost_df['longitude'], topmost_df['latitude'], c=colors[i], s=1)
+        plt.scatter(topmost_df['pickup_longitude'], topmost_df['pickup_latitude'], c="red", s=1)
+        plt.scatter(topmost_df['dropoff_longitude'], topmost_df['dropoff_latitude'], c="blue", s=1)
 
     plt.show()
+
+
+def plot_topmost_clusters_on_map(df, labels, title_prefix):
+    df['label'] = labels
+
+    topmost_labels_counter = Counter(x for x in labels if x != -1).most_common()
+
+    topmost_labels = []
+    for i, label_counter in enumerate(topmost_labels_counter):
+        if i == 5:
+            break
+        topmost_labels.append(label_counter[0])
+
+    for i, label in enumerate(topmost_labels):
+        topmost_df = df[df['label'] == label]
+        title = title_prefix + " Cluster " + str(i + 1) + " with " + str(len(topmost_df)) + " Trips"
+        plot_trip_data_on_map(topmost_df['pickup_latitude'], topmost_df['pickup_longitude'],
+                              topmost_df['dropoff_latitude'], topmost_df['dropoff_longitude'], title)
 
 
 def reachability_plot(df, clust):
@@ -120,11 +127,91 @@ def reachability_plot(df, clust):
     plt.show()
 
 
-def plot_data(df, title_prefix):
-    df.plot.scatter(x='longitude', y='latitude', s=0.5, figsize=(20, 10))
+def plot_trip_data_on_map(pickup_latitudes, pickup_longitudes, dropoff_latitudes, dropoff_longitudes, title):
+    fig = go.Figure()
 
-    plt.title(title_prefix + ' Data Points Plot')
-    plt.xlabel('Longitiude')
-    plt.ylabel('Latitude')
+    fig.add_trace(go.Scattermapbox(
+        name="Pickup",
+        lat=pickup_latitudes,
+        lon=pickup_longitudes,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=2.5,
+            symbol='circle',
+            color='blue',
+            opacity=.8
+        )
+    ))
 
-    plt.show()
+    fig.add_trace(go.Scattermapbox(
+        name="Dropoff",
+        lat=dropoff_latitudes,
+        lon=dropoff_longitudes,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=2.5,
+            symbol='circle',
+            color='red',
+            opacity=.8
+        )
+    ))
+
+    fig.update_layout(
+        title=title,
+        autosize=True,
+        hovermode='closest',
+        mapbox=go.layout.Mapbox(
+            accesstoken=mapbox_access_token,
+            bearing=10,
+            center=go.layout.mapbox.Center(
+                lat=40.7213,
+                lon=-73.9871
+            ),
+            pitch=35,
+            zoom=9.5,
+            style="mapbox://styles/hasnat-cse/ck3qt03hc095n1cmbvpr62mo5"
+        ),
+    )
+
+    fig.show()
+
+
+def plot_data_points_on_map(latitudes, longitudes, data_type, title):
+    if data_type == "Pickup":
+        color = "blue"
+    else:
+        color = "red"
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scattermapbox(
+        name=data_type,
+        lat=latitudes,
+        lon=longitudes,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=2.5,
+            symbol='circle',
+            color=color,
+            opacity=.8
+        )
+    ))
+
+    fig.update_layout(
+        title=title,
+        autosize=True,
+        hovermode='closest',
+        mapbox=go.layout.Mapbox(
+            accesstoken=mapbox_access_token,
+            bearing=10,
+            center=go.layout.mapbox.Center(
+                lat=40.7213,
+                lon=-73.9871
+            ),
+            pitch=35,
+            zoom=9.5,
+            style="mapbox://styles/hasnat-cse/ck3qt03hc095n1cmbvpr62mo5"
+        ),
+    )
+
+    fig.show()
