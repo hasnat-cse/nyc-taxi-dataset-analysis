@@ -2,7 +2,7 @@ from cluster_plot_validate import *
 from plot import *
 from preprcessing import *
 
-from enum_classes import LocationType, ClusteringMethod
+from enum_classes import ClusteringMethod
 
 
 def analyze_periodic_data(df, periods, clustering_method, title_prefix):
@@ -36,7 +36,7 @@ def main():
     weekday_df, weekend_df = read_and_preprocess_data()
 
     # analyze_data(weekday_df, "Weekday")
-    # analyze_data(weekend_df, "Weekday")
+    # analyze_data(weekend_df, "Weekend")
 
     # periods = [(0, 6), (6, 10), (10, 15), (15, 19), (19, 24)]
     periods = [(10, 15)]

@@ -62,7 +62,6 @@ def calculate_calinski_harabasz_score(df, labels):
     return calinski_harabasz_score(np_array, labels)
 
 
-
 def calculate_davies_bouldin_score(df, labels):
     np_array = df.to_numpy()
     return davies_bouldin_score(np_array, labels)

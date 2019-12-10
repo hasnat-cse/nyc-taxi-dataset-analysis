@@ -28,7 +28,7 @@ def read_relevant_data():
     #                  parse_dates=["tpep_pickup_datetime", "tpep_dropoff_datetime"],
     #                  date_parser=parse_date, nrows=2400000,
     #                  dtype={"pickup_longitude": "float64", "pickup_latitude": "float64", "dropoff_longitude": "float64",
-    #                         "dropoff_latitude": "float64"})
+    #                         "dropoff_latitude": "float64", "trip_distance": "float64"})
 
     return df
 
@@ -39,7 +39,7 @@ def remove_rows_that_contain_0_values(df):
 
     # return df[(df['pickup_longitude'] != float(0)) & (df['pickup_latitude'] != float(0)) &
     #           (df['dropoff_longitude'] != float(0)) & (df['dropoff_latitude'] != float(0)) &
-    #           (df['trip_distance'] != float(0))]
+    #           (df['trip_distance'] > float(0))]
 
 
 def impose_boundary(df):
