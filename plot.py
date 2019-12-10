@@ -6,6 +6,7 @@ import numpy as np
 
 import plotly.graph_objects as go
 
+from enum_classes import LocationType
 
 mapbox_access_token = open(".mapbox_token").read()
 
@@ -58,7 +59,7 @@ def plot_clusters(df, labels, title_prefix):
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
 
-    plt.scatter(df['longitude'], df['latitude'], c=df['label'].map(label_color_dict), s=1)
+    plt.scatter(df['dropoff_longitude'], df['dropoff_latitude'], c=df['label'].map(label_color_dict), s=1)
 
     plt.show()
 
@@ -102,8 +103,7 @@ def plot_topmost_clusters_on_map(df, labels, title_prefix):
     for i, label in enumerate(topmost_labels):
         topmost_df = df[df['label'] == label]
         title = title_prefix + " Cluster " + str(i + 1) + " with " + str(len(topmost_df)) + " Trips"
-        plot_trip_data_on_map(topmost_df['pickup_latitude'], topmost_df['pickup_longitude'],
-                              topmost_df['dropoff_latitude'], topmost_df['dropoff_longitude'], title)
+        plot_trip_data_on_map(topmost_df, title)
 
 
 def reachability_plot(df, clust):
@@ -127,7 +127,12 @@ def reachability_plot(df, clust):
     plt.show()
 
 
-def plot_trip_data_on_map(pickup_latitudes, pickup_longitudes, dropoff_latitudes, dropoff_longitudes, title):
+def plot_trip_data_on_map(df, title):
+    pickup_latitudes = df['pickup_latitude']
+    pickup_longitudes = df['pickup_longitude']
+    dropoff_latitudes = df['dropoff_latitude']
+    dropoff_longitudes = df['dropoff_longitude']
+
     fig = go.Figure()
 
     fig.add_trace(go.Scattermapbox(
@@ -167,8 +172,8 @@ def plot_trip_data_on_map(pickup_latitudes, pickup_longitudes, dropoff_latitudes
                 lat=40.7213,
                 lon=-73.9871
             ),
-            pitch=35,
-            zoom=9.5,
+            pitch=40,
+            zoom=10,
             style="mapbox://styles/hasnat-cse/ck3qt03hc095n1cmbvpr62mo5"
         ),
     )
@@ -176,8 +181,8 @@ def plot_trip_data_on_map(pickup_latitudes, pickup_longitudes, dropoff_latitudes
     fig.show()
 
 
-def plot_data_points_on_map(latitudes, longitudes, data_type, title):
-    if data_type == "Pickup":
+def plot_data_points_on_map(latitudes, longitudes, location_type, title):
+    if location_type is LocationType.Pickup:
         color = "blue"
     else:
         color = "red"
@@ -185,7 +190,7 @@ def plot_data_points_on_map(latitudes, longitudes, data_type, title):
     fig = go.Figure()
 
     fig.add_trace(go.Scattermapbox(
-        name=data_type,
+        name=location_type.name,
         lat=latitudes,
         lon=longitudes,
         mode='markers',

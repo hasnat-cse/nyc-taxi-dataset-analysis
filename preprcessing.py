@@ -49,8 +49,8 @@ def impose_boundary(df):
               (df['dropoff_latitude'] >= float(40.5)) & (df['dropoff_latitude'] <= float(41))]
 
 
-def sample_data(df):
-    sample_size = 100000
+def sample_data(df, sample_size):
+    sample_size = sample_size
     if len(df) > sample_size:
         df = df.sample(sample_size)
 

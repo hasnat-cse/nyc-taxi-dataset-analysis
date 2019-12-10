@@ -12,3 +12,4 @@ https://stackoverflow.com/questions/25129144/pandas-return-hour-from-datetime-co
 https://medium.com/analytics-vidhya/introduction-to-interactive-geoplots-with-plotly-and-mapbox-9249889358eb
 https://plot.ly/python/scattermapbox/
 https://plot.ly/python/reference/#scattermapbox
+https://scikit-learn.org/stable/modules/clustering.html#calinski-harabasz-index
