@@ -39,7 +39,7 @@ def main():
     # analyze_data(weekend_df, "Weekend")
 
     # periods = [(0, 6), (6, 10), (10, 15), (15, 19), (19, 24)]
-    periods = [(10, 15)]
+    periods = [(19, 24)]
 
     # analyze_periodic_data(weekday_df, periods, ClusteringMethod.hdbscan, "Weekday")
     analyze_periodic_data(weekend_df, periods, ClusteringMethod.hdbscan, "Weekend")

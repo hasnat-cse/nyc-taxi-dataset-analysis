@@ -96,7 +96,7 @@ def plot_topmost_clusters_on_map(df, labels, title_prefix):
 
     topmost_labels = []
     for i, label_counter in enumerate(topmost_labels_counter):
-        if i == 5:
+        if i == 7:
             break
         topmost_labels.append(label_counter[0])
 
