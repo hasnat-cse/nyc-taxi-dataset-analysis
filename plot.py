@@ -169,8 +169,8 @@ def plot_trip_data_on_map(df, title):
             accesstoken=mapbox_access_token,
             bearing=10,
             center=go.layout.mapbox.Center(
-                lat=40.7213,
-                lon=-73.9871
+                lat=40.7128,
+                lon=-74.0060
             ),
             pitch=40,
             zoom=10,
@@ -210,8 +210,8 @@ def plot_data_points_on_map(latitudes, longitudes, location_type, title):
             accesstoken=mapbox_access_token,
             bearing=10,
             center=go.layout.mapbox.Center(
-                lat=40.7213,
-                lon=-73.9871
+                lat=40.7128,
+                lon=-74.0060
             ),
             pitch=35,
             zoom=9.5,

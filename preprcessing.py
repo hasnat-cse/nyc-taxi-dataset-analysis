@@ -43,10 +43,10 @@ def remove_rows_that_contain_0_values(df):
 
 
 def impose_boundary(df):
-    return df[(df['pickup_longitude'] <= float(-73.7)) & (df['pickup_longitude'] >= float(-74.2)) &
-              (df['pickup_latitude'] >= float(40.5)) & (df['pickup_latitude'] <= float(41)) &
-              (df['dropoff_longitude'] <= float(-73.7)) & (df['dropoff_longitude'] >= float(-74.2)) &
-              (df['dropoff_latitude'] >= float(40.5)) & (df['dropoff_latitude'] <= float(41))]
+    return df[(df['pickup_longitude'] <= float(-73.6992)) & (df['pickup_longitude'] >= float(-74.2572)) &
+              (df['pickup_latitude'] >= float(40.4960)) & (df['pickup_latitude'] <= float(40.9156)) &
+              (df['dropoff_longitude'] <= float(-73.6992)) & (df['dropoff_longitude'] >= float(-74.2572)) &
+              (df['dropoff_latitude'] >= float(40.4960)) & (df['dropoff_latitude'] <= float(40.9156))]
 
 
 def sample_data(df, sample_size):
