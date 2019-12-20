@@ -141,7 +141,7 @@ def plot_trip_data_on_map(df, title):
         lon=pickup_longitudes,
         mode='markers',
         marker=go.scattermapbox.Marker(
-            size=2.5,
+            size=3,
             symbol='circle',
             color='blue',
             opacity=.8
@@ -154,7 +154,7 @@ def plot_trip_data_on_map(df, title):
         lon=dropoff_longitudes,
         mode='markers',
         marker=go.scattermapbox.Marker(
-            size=2.5,
+            size=3,
             symbol='circle',
             color='red',
             opacity=.8
@@ -195,7 +195,7 @@ def plot_data_points_on_map(latitudes, longitudes, location_type, title):
         lon=longitudes,
         mode='markers',
         marker=go.scattermapbox.Marker(
-            size=2.5,
+            size=4,
             symbol='circle',
             color=color,
             opacity=.8

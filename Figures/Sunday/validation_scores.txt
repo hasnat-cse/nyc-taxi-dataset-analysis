@@ -1,0 +1,8 @@
+Weekend data length: 296370
+
+Estimated number of clusters: 32
+Estimated number of noise points: 32818
+
+Approximate Silhouette Score: 0.9402119089205904
+Calinski Harabasz Score: 243273771.1165946
+Davies Bouldin Score: 0.04663789926759934
