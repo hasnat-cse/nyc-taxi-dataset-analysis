@@ -1,6 +1,0 @@
-Estimated number of clusters: 13
-Estimated number of noise points: 5007
-
-Approximate Silhouette Score: 0.9470633554319319
-Calinski Harabasz Score: 34968014.44960357
-Davies Bouldin Score: 0.05627137834373861
