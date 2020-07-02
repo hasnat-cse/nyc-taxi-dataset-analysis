@@ -6,7 +6,7 @@ def parse_date(date_string):
 
 
 def read_relevant_data():
-    df = pd.read_csv("../697_data/yellow_tripdata_2015-09.csv", header=0, usecols=["tpep_pickup_datetime",
+    df = pd.read_csv("data/yellow_tripdata_2015-09.csv", header=0, usecols=["tpep_pickup_datetime",
                                                                                    "tpep_dropoff_datetime",
                                                                                    "pickup_longitude",
                                                                                    "pickup_latitude",
@@ -18,7 +18,7 @@ def read_relevant_data():
                             "dropoff_latitude": "float64"})
 
 
-    # df = pd.read_csv("../697_data/yellow_tripdata_2015-09.csv", header=0, usecols=["tpep_pickup_datetime",
+    # df = pd.read_csv("data/yellow_tripdata_2015-09.csv", header=0, usecols=["tpep_pickup_datetime",
     #                                                                                "tpep_dropoff_datetime",
     #                                                                                "pickup_longitude",
     #                                                                                "pickup_latitude",
